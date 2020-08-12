@@ -284,6 +284,137 @@ IsWatermarkEnabled,WatermarkType
 order by LightboxID" -s , -W -k1 > Output/"$name"_LightBox_Details.csv
 
 
+
+#ge-{org_name}_ApprovalGallery_Detail.csv
+
+sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
+with CTE as(
+select distinct
+ag.AccountGroupID,
+ag.Name as [AccountGroupName],
+a.AccountID,
+a.AccountName,
+g.ApprovalGalleryID,
+'""'+g.Name+'""' as ApprovalGalleryName,
+cast(g.ExpirationDate as date)  as [ExpirationDate],
+g.CreatorUserID as CreatorID,
+concat(isnull(ug.FirstName,''),' ' ,isnull(ug.LastName,'')) as CreatedBy,
+CASE WHEN ug.IsCasual = 1 THEN 'Casual'
+	when ug.IsTalent = 1 then 'Talent'
+	when ug.Guest =1 then 'Guest'
+	when ug.AccountAdmin=1 then 'Admin'
+	else 'NoRole'
+end [Role of created by user],
+  (select count(*)   
+           FROM 
+			ApprovalGallery ag 
+			INNER JOIN ApprovalGalleryUser agu on ag.ApprovalGalleryID=agu.ApprovalGalleryID
+			INNER JOIN [User] u on agu.UserID=u.UserID
+			where ag.ApprovalGalleryID=g.ApprovalGalleryID
+          ) as [Number of recipients],
+  REPLACE(REPLACE(STUFF((SELECT ' | ' + (
+  rtrim(ltrim(u.UserID)+ ' - '+concat(isnull(u.FirstName,''),' ' ,isnull(u.LastName,'')))
+  +' - '+
+  CASE WHEN u.IsCasual = 1 THEN 'Casual'
+	when u.IsTalent = 1 then 'Talent'
+	when u.Guest =1 then 'Guest'
+	when u.AccountAdmin=1 then 'Admin'
+	else 'NoRole'
+  end
+  )
+           FROM 
+			ApprovalGallery ag 
+			INNER JOIN ApprovalGalleryUser agu on ag.ApprovalGalleryID=agu.ApprovalGalleryID
+			INNER JOIN [User] u on agu.UserID=u.UserID
+			where ag.ApprovalGalleryID=g.ApprovalGalleryID
+          FOR XML PATH('')), 1, 2, ''), CHAR(13), ''), CHAR(10), '') as [Recipient Users Details],
+case when agwt.Name='None' then '0' else'1' end as [IsWatermarkEnabled],
+--agwt.Name as [WatermarkType],
+case when arw.FileName is not null then 'Image' else agwt.Name end as [WatermarkType]
+from
+AccountGroup ag 
+inner join Account a on ag.AccountGroupId=a.AccountGroupID
+inner join ApprovalGallery g on g.AccountID=a.AccountID
+inner join [User] ug on g.CreatorUserID=ug.UserID
+inner join ApprovalGalleryWatermarkType agwt on g.ApprovalGalleryWatermarkTypeID=agwt.ApprovalGalleryWatermarkTypeID
+left join AssetRightsWatermark arw on a.AccountID=arw.AccountID and agwt.ApprovalGalleryWatermarkTypeID=arw.WatermarkType
+left JOIN ApprovalGalleryUser agu on g.ApprovalGalleryID=agu.ApprovalGalleryID
+left JOIN [User] u on agu.UserID=u.UserID 
+where ag.AccountGroupId = @AccountGroupID and (
+(g.DoneDate is not null and g.ExpirationDate is not null) or (g.DoneDate is not null and g.ExpirationDate is null) or (g.DoneDate is null and g.ExpirationDate is not null)
+)
+)
+
+
+select 
+AccountGroupID,AccountGroupName,AccountID,AccountName,a.ApprovalGalleryID,ApprovalGalleryName,ExpirationDate,CreatorID,a.CreatedBy,[Role of created by user],[Number of recipients],[Recipient Users Details],
+IsWatermarkEnabled,WatermarkType, count(at.AssetID) as [Asset_Count]
+
+from CTE a
+left join ApprovalGalleryAsset aga on a.ApprovalGalleryID=aga.ApprovalGalleryID
+left join asset at on aga.AssetID=at.AssetID and at.DeletetedOn is null
+group by 
+AccountGroupID,AccountGroupName,AccountID,AccountName,a.ApprovalGalleryID,ApprovalGalleryName,ExpirationDate,CreatorID,a.CreatedBy,[Role of created by user],[Number of recipients],[Recipient Users Details],
+IsWatermarkEnabled,WatermarkType" -s , -W -k1 > Output/"$name"_ApprovalGallery_Detail.csv
+
+
+
+#ge-{org_name}_ApprovalGallery_HashNotes_1.csv
+
+sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
+WITH CTE as (
+select nh.NotesHistoryID, ag.ApprovalGalleryID, '""'+nh.Text+'""' as [Notes], nh.AssetID From NoteHistory nh 
+inner join ApprovalGalleryUser agu on nh.ApprovalGalleryUserID=agu.ApprovalGalleryUserID
+inner join ApprovalGallery ag on agu.ApprovalGalleryID=ag.ApprovalGalleryID
+inner join Account a on ag.AccountID=a.AccountID
+inner join AccountGroup acg on a.AccountGroupID=acg.AccountGroupID
+where acg.AccountGroupID=@AccountGroupID
+and (
+(ag.DoneDate is not null and ag.ExpirationDate is not null) or (ag.DoneDate is not null and ag.ExpirationDate is null) or (ag.DoneDate is null and ag.ExpirationDate is not null)
+))
+
+select acg.AccountGroupID, a.AccountID, apg.ApprovalGalleryID, c.NotesHistoryID, c.Notes, 
+case when c.NotesHistoryID is null then '0' else '1' end as [HasNotes], c.AssetID From AccountGroup acg
+inner join Account a on acg.AccountGroupID=a.AccountGroupID
+inner join ApprovalGallery apg on a.AccountID=apg.AccountID
+left  join CTE c on apg.ApprovalGalleryID=c.ApprovalGalleryID
+where acg.AccountGroupID=@AccountGroupID and c.NotesHistoryID is not null and (
+(apg.DoneDate is not null and apg.ExpirationDate is not null) or (apg.DoneDate is not null and apg.ExpirationDate is null) or (apg.DoneDate is null and apg.ExpirationDate is not null)
+)" -s , -W -k1 > Output/"$name"_ApprovalGallery_HashNotes_1.csv
+
+
+
+#ge-{org_name}_ApprovalGallery_HashNotes_0.csv
+sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
+WITH CTE as (
+select nh.NotesHistoryID, ag.ApprovalGalleryID, '""'+nh.Text+'""' as [Notes], nh.AssetID From NoteHistory nh 
+inner join ApprovalGalleryUser agu on nh.ApprovalGalleryUserID=agu.ApprovalGalleryUserID
+inner join ApprovalGallery ag on agu.ApprovalGalleryID=ag.ApprovalGalleryID
+inner join Account a on ag.AccountID=a.AccountID
+inner join AccountGroup acg on a.AccountGroupID=acg.AccountGroupID
+where acg.AccountGroupID=@AccountGroupID
+and (
+(ag.DoneDate is not null and ag.ExpirationDate is not null) or (ag.DoneDate is not null and ag.ExpirationDate is null) or (ag.DoneDate is null and ag.ExpirationDate is not null)
+)
+
+)
+
+select acg.AccountGroupID, a.AccountID, apg.ApprovalGalleryID, c.NotesHistoryID, c.Notes, 
+case when c.NotesHistoryID is null then '0' else '1' end as [HasNotes], c.AssetID From AccountGroup acg
+inner join Account a on acg.AccountGroupID=a.AccountGroupID
+inner join ApprovalGallery apg on a.AccountID=apg.AccountID
+left  join CTE c on apg.ApprovalGalleryID=c.ApprovalGalleryID
+where acg.AccountGroupID=@AccountGroupID and c.NotesHistoryID is null
+and (
+(apg.DoneDate is not null and apg.ExpirationDate is not null) or (apg.DoneDate is not null and apg.ExpirationDate is null) or (apg.DoneDate is null and apg.ExpirationDate is not null)
+)" -s , -W -k1 > Output/"$name"_ApprovalGallery_HashNotes_0.csv
+
+
+
+
+sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_ApprovalGallery_HashNotes_0.csv > Final_CSV/"$name"_ApprovalGallery_HashNotes_0.csv
+sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_ApprovalGallery_HashNotes_1.csv > Final_CSV/"$name"_ApprovalGallery_HashNotes_1.csv
+sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_ApprovalGallery_Detail.csv > Final_CSV/"$name"_ApprovalGallery_Detail.csv
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_LightBox_Details.csv > Final_CSV/"$name"_LightBox_Details.csv
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_Watermark_Detail.csv > Final_CSV/"$name"_Watermark_Detail.csv
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_WatermarkAssets.csv > Final_CSV/"$name"_WatermarkAssets.csv
