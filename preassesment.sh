@@ -355,7 +355,7 @@ left join ApprovalGalleryAsset aga on a.ApprovalGalleryID=aga.ApprovalGalleryID
 left join asset at on aga.AssetID=at.AssetID and at.DeletetedOn is null
 group by 
 AccountGroupID,AccountGroupName,AccountID,AccountName,a.ApprovalGalleryID,ApprovalGalleryName,ExpirationDate,CreatorID,a.CreatedBy,[Role of created by user],[Number of recipients],[Recipient Users Details],
-IsWatermarkEnabled,WatermarkType" -s , -W -k1 > Output/"$name"_ApprovalGallery_Detail.csv
+IsWatermarkEnabled,WatermarkType" -s , -W -k1 > Output/"$name"_ApprovalGallery.csv
 
 
 
@@ -414,7 +414,7 @@ and (
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_ApprovalGallery_HashNotes_0.csv > Final_CSV/"$name"_ApprovalGallery_HashNotes_0.csv
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_ApprovalGallery_HashNotes_1.csv > Final_CSV/"$name"_ApprovalGallery_HashNotes_1.csv
-sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_ApprovalGallery_Detail.csv > Final_CSV/"$name"_ApprovalGallery_Detail.csv
+sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_ApprovalGallery.csv > Final_CSV/"$name"_ApprovalGallery.csv
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_LightBox_Details.csv > Final_CSV/"$name"_LightBox_Details.csv
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_Watermark_Detail.csv > Final_CSV/"$name"_Watermark_Detail.csv
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_WatermarkAssets.csv > Final_CSV/"$name"_WatermarkAssets.csv
