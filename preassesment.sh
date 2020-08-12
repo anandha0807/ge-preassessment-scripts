@@ -202,7 +202,7 @@ inner join job j on a.AccountID=j.OwnerAccountID
 inner join JobFolder jf on j.JobID=jf.JobID
 inner join Asset at on j.JobID=at.JobID
 left join AssetRightsRestriction arr on at.AssetID=arr.AssetID and arr.AccessLevelID in(1,3,6)
-where at.DeletetedOn is null and j.DeletedOn is null and jf.DeletedOn is null and ag.AccountGroupID=@AccountGroupID 
+where at.DeletetedOn is null and j.DeletedOn is null and jf.DeletedOn is null and ag.AccountGroupID= '$acc' 
 group by ag.AccountGroupID,ag.Name,a.AccountID,a.AccountName
 order by ag.AccountGroupID,ag.Name,a.AccountID,a.AccountName" -s , -W -k1 > Output/"$name"_WatermarkAssets.csv
 
@@ -215,7 +215,7 @@ arw.FontName,arw.FontSize,arw.TextColor,arw.TextAngle,arw.TextStyle,arw.TextOpac
 inner join Account a on ag.AccountGroupID=a.AccountGroupID
 inner join AssetRightsWatermark arw on a.AccountID=arw.AccountID
 inner join ApprovalGalleryWatermarkType agwt on arw.WatermarkType=agwt.ApprovalGalleryWatermarkTypeID
-where ag.AccountGroupID=@AccountGroupID" -s , -W -k1 > Output/"$name"_Watermark_Detail.csv
+where ag.AccountGroupID='$acc'" -s , -W -k1 > Output/"$name"_Watermark_Detail.csv
 
 #ge-{org_name}_LightBox_Details.csv
 
@@ -267,7 +267,7 @@ inner join Lightbox lb on u.UserID=lb.OwnerID
 inner join Invitation i on lb.LightboxID=i.SharedObjectID and InvitationTypeCd='LightboxInvitation' 
 left join approvalgallerywatermarktype agwt on i.WatermarkType=agwt.ApprovalGalleryWatermarkTypeID
 
-where ag.AccountGroupID=@AccountGroupID 
+where ag.AccountGroupID='$acc' 
 )
 
 select AccountGroupID,AccountGroupName,AccountID,AccountName,
@@ -340,7 +340,7 @@ inner join ApprovalGalleryWatermarkType agwt on g.ApprovalGalleryWatermarkTypeID
 left join AssetRightsWatermark arw on a.AccountID=arw.AccountID and agwt.ApprovalGalleryWatermarkTypeID=arw.WatermarkType
 left JOIN ApprovalGalleryUser agu on g.ApprovalGalleryID=agu.ApprovalGalleryID
 left JOIN [User] u on agu.UserID=u.UserID 
-where ag.AccountGroupId = @AccountGroupID and (
+where ag.AccountGroupId = '$acc' and (
 (g.DoneDate is not null and g.ExpirationDate is not null) or (g.DoneDate is not null and g.ExpirationDate is null) or (g.DoneDate is null and g.ExpirationDate is not null)
 )
 )
@@ -368,7 +368,7 @@ inner join ApprovalGalleryUser agu on nh.ApprovalGalleryUserID=agu.ApprovalGalle
 inner join ApprovalGallery ag on agu.ApprovalGalleryID=ag.ApprovalGalleryID
 inner join Account a on ag.AccountID=a.AccountID
 inner join AccountGroup acg on a.AccountGroupID=acg.AccountGroupID
-where acg.AccountGroupID=@AccountGroupID
+where acg.AccountGroupID='$acc'
 and (
 (ag.DoneDate is not null and ag.ExpirationDate is not null) or (ag.DoneDate is not null and ag.ExpirationDate is null) or (ag.DoneDate is null and ag.ExpirationDate is not null)
 ))
@@ -378,7 +378,7 @@ case when c.NotesHistoryID is null then '0' else '1' end as [HasNotes], c.AssetI
 inner join Account a on acg.AccountGroupID=a.AccountGroupID
 inner join ApprovalGallery apg on a.AccountID=apg.AccountID
 left  join CTE c on apg.ApprovalGalleryID=c.ApprovalGalleryID
-where acg.AccountGroupID=@AccountGroupID and c.NotesHistoryID is not null and (
+where acg.AccountGroupID='$acc' and c.NotesHistoryID is not null and (
 (apg.DoneDate is not null and apg.ExpirationDate is not null) or (apg.DoneDate is not null and apg.ExpirationDate is null) or (apg.DoneDate is null and apg.ExpirationDate is not null)
 )" -s , -W -k1 > Output/"$name"_ApprovalGallery_HashNotes_1.csv
 
@@ -392,7 +392,7 @@ inner join ApprovalGalleryUser agu on nh.ApprovalGalleryUserID=agu.ApprovalGalle
 inner join ApprovalGallery ag on agu.ApprovalGalleryID=ag.ApprovalGalleryID
 inner join Account a on ag.AccountID=a.AccountID
 inner join AccountGroup acg on a.AccountGroupID=acg.AccountGroupID
-where acg.AccountGroupID=@AccountGroupID
+where acg.AccountGroupID='$acc'
 and (
 (ag.DoneDate is not null and ag.ExpirationDate is not null) or (ag.DoneDate is not null and ag.ExpirationDate is null) or (ag.DoneDate is null and ag.ExpirationDate is not null)
 )
@@ -404,7 +404,7 @@ case when c.NotesHistoryID is null then '0' else '1' end as [HasNotes], c.AssetI
 inner join Account a on acg.AccountGroupID=a.AccountGroupID
 inner join ApprovalGallery apg on a.AccountID=apg.AccountID
 left  join CTE c on apg.ApprovalGalleryID=c.ApprovalGalleryID
-where acg.AccountGroupID=@AccountGroupID and c.NotesHistoryID is null
+where acg.AccountGroupID='$acc' and c.NotesHistoryID is null
 and (
 (apg.DoneDate is not null and apg.ExpirationDate is not null) or (apg.DoneDate is not null and apg.ExpirationDate is null) or (apg.DoneDate is null and apg.ExpirationDate is not null)
 )" -s , -W -k1 > Output/"$name"_ApprovalGallery_HashNotes_0.csv
