@@ -210,7 +210,7 @@ order by ag.AccountGroupID,ag.Name,a.AccountID,a.AccountName" -s , -W -k1 > Outp
 #ge-{org_name}_Watermark_Detail.csv
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
 select ag.AccountGroupID, ag.Name as [AccountGroupName], a.AccountID,a.AccountName, arw.WatermarkID,agwt.ApprovalGalleryWatermarkTypeID as [WatermarkTypeID], agwt.Name as WatermarkType, 
-arw.ImageWatermark, '"'+arw.TextWatermark+'"' as [TextWatermark], '"'+arw.FileName+'"' as [FileName],arw.ModifiedBy,cast(arw.ModifiedDate as date) as [ModifiedDate],
+arw.ImageWatermark, '""'+arw.TextWatermark+'""' as [TextWatermark], '""'+arw.FileName+'""' as [FileName],arw.ModifiedBy,cast(arw.ModifiedDate as date) as [ModifiedDate],
 arw.FontName,arw.FontSize,arw.TextColor,arw.TextAngle,arw.TextStyle,arw.TextOpacity,arw.Position from AccountGroup ag
 inner join Account a on ag.AccountGroupID=a.AccountGroupID
 inner join AssetRightsWatermark arw on a.AccountID=arw.AccountID
