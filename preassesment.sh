@@ -183,8 +183,111 @@ where acc.AccountGroupID= '$acc' and j.deletedon is null and a.DeletetedOn is nu
 
 
 
+#ge-{org_name}_Watermarks.csv
+sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
+select ag.AccountGroupID, ag.Name as [AccountGroupName], a.AccountID,a.AccountName, count(distinct WatermarkID) as [WatermarkCount] from AccountGroup ag
+inner join Account a on ag.AccountGroupID=a.AccountGroupID
+inner join AssetRightsWatermark arw on a.AccountID=arw.AccountID
+left join ApprovalGalleryWatermarkType agwt on arw.WatermarkType=agwt.ApprovalGalleryWatermarkTypeID
+where ag.AccountGroupID= '$acc'
+group by ag.AccountGroupID, ag.Name,
+a.AccountID,a.AccountName
+order by ag.AccountGroupID,a.AccountID" -s , -W -k1 > Output/"$name"_Watermarks.csv
+
+#ge-{org_name}_WatermarkAssets.csv
+sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
+select ag.AccountGroupID,ag.Name as [AccountGroupName], a.AccountID,a.AccountName,count(distinct arr.AssetID) as [AssetCount]  From AccountGroup ag
+inner join Account a on ag.AccountGroupID=a.AccountGroupID
+inner join job j on a.AccountID=j.OwnerAccountID
+inner join JobFolder jf on j.JobID=jf.JobID
+inner join Asset at on j.JobID=at.JobID
+left join AssetRightsRestriction arr on at.AssetID=arr.AssetID and arr.AccessLevelID in(1,3,6)
+where at.DeletetedOn is null and j.DeletedOn is null and jf.DeletedOn is null and ag.AccountGroupID=@AccountGroupID 
+group by ag.AccountGroupID,ag.Name,a.AccountID,a.AccountName
+order by ag.AccountGroupID,ag.Name,a.AccountID,a.AccountName" -s , -W -k1 > Output/"$name"_WatermarkAssets.csv
 
 
+#ge-{org_name}_Watermark_Detail.csv
+sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
+select ag.AccountGroupID, ag.Name as [AccountGroupName], a.AccountID,a.AccountName, arw.WatermarkID,agwt.ApprovalGalleryWatermarkTypeID as [WatermarkTypeID], agwt.Name as WatermarkType, 
+arw.ImageWatermark, '"'+arw.TextWatermark+'"' as [TextWatermark], '"'+arw.FileName+'"' as [FileName],arw.ModifiedBy,cast(arw.ModifiedDate as date) as [ModifiedDate],
+arw.FontName,arw.FontSize,arw.TextColor,arw.TextAngle,arw.TextStyle,arw.TextOpacity,arw.Position from AccountGroup ag
+inner join Account a on ag.AccountGroupID=a.AccountGroupID
+inner join AssetRightsWatermark arw on a.AccountID=arw.AccountID
+inner join ApprovalGalleryWatermarkType agwt on arw.WatermarkType=agwt.ApprovalGalleryWatermarkTypeID
+where ag.AccountGroupID=@AccountGroupID" -s , -W -k1 > Output/"$name"_Watermark_Detail.csv
+
+#ge-{org_name}_LightBox_Details.csv
+
+sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
+WITH CTE as(
+select distinct ag.AccountGroupID, ag.name as [AccountGroupName],
+a.AccountID, a.AccountName,lb.lightboxid,
+lb.Name as [LightboxName],
+lb.ownerid as[CreatorID],
+concat(isnull(u.FirstName,''),' ' ,isnull(u.LastName,'')) as CreatedBy,
+CASE WHEN u.IsCasual = 1 THEN 'Casual'
+        when u.IsTalent = 1 then 'Talent'
+        when u.Guest =1 then 'Guest'
+        when u.AccountAdmin=1 then 'Admin'
+        else 'NoRole'
+end [Role of created by user],
+cast(i.ExpiredOn as date) as ExpirationDate,
+  (select count(distinct guestid)   
+           FROM 
+                        Lightbox l 
+                        INNER JOIN Invitation i on l.LightboxID=i.SharedObjectID and InvitationTypeCd='LightboxInvitation' 
+                        INNER JOIN [User] u on i.Guestid=u.userid
+                        where l.lightboxid=lb.lightboxid
+          ) as [Number of recipients],
+  REPLACE(REPLACE(STUFF((SELECT ' | ' + (
+  rtrim(ltrim(u.UserID)+ ' - '+concat(isnull(u.FirstName,''),' ' ,isnull(u.LastName,'')))
+  +' - '+
+  CASE WHEN u.IsCasual = 1 THEN 'Casual'
+        when u.IsTalent = 1 then 'Talent'
+        when u.Guest =1 then 'Guest'
+        when u.AccountAdmin=1 then 'Admin'
+        else 'NoRole'
+  end
+  )
+           FROM 
+                        Lightbox l 
+                        INNER JOIN Invitation i on l.LightboxID=i.SharedObjectID and InvitationTypeCd='LightboxInvitation' 
+                        INNER JOIN [User] u on i.Guestid=u.userid
+                        where l.lightboxid=lb.lightboxid
+          FOR XML PATH('')), 1, 2, ''), CHAR(13), ''), CHAR(10), '') as [Recipient Users Details],                  
+                  case when (agwt.name is null or agwt.Name='None') then '0' else'1' end as [IsWatermarkEnabled],
+agwt.Name as [WatermarkType]
+--case when arw.FileName is not null then 'Image' else agwt.Name end as [WatermarkType]
+  from
+AccountGroup ag 
+inner join Account a on ag.AccountGroupId=a.AccountGroupID
+inner join [User] u on a.AccountID=u.AccountID
+inner join Lightbox lb on u.UserID=lb.OwnerID
+inner join Invitation i on lb.LightboxID=i.SharedObjectID and InvitationTypeCd='LightboxInvitation' 
+left join approvalgallerywatermarktype agwt on i.WatermarkType=agwt.ApprovalGalleryWatermarkTypeID
+
+where ag.AccountGroupID=@AccountGroupID 
+)
+
+select AccountGroupID,AccountGroupName,AccountID,AccountName,
+a.LightboxID,LightboxName,ExpirationDate,CreatorID,a.CreatedBy,[Role of created by user],[Number of recipients],[Recipient Users Details],
+IsWatermarkEnabled,WatermarkType,
+count(at.AssetID) as Asset_Count
+
+From CTE a
+left join lightboxasset lba on a.lightboxid=lba.lightboxid
+LEFT JOIN ASSET at on lba.assetid=at.assetid and at.DeletetedOn is null
+group by AccountGroupID,AccountGroupName,AccountID,AccountName,
+a.LightboxID,LightboxName,ExpirationDate,CreatorID,a.CreatedBy,[Role of created by user],[Number of recipients],[Recipient Users Details],
+IsWatermarkEnabled,WatermarkType                                        
+order by LightboxID" -s , -W -k1 > Output/"$name"_LightBox_Details.csv
+
+
+sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_LightBox_Details.csv > Final_CSV/"$name"_LightBox_Details.csv
+sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_Watermark_Detail.csv > Final_CSV/"$name"_Watermark_Detail.csv
+sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_WatermarkAssets.csv > Final_CSV/"$name"_WatermarkAssets.csv
+sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_Watermarks.csv > Final_CSV/"$name"_Watermarks.csv
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_org.csv > Final_CSV/"$name"_org.csv
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_userid.csv > Final_CSV/"$name"_userid.csv
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_user_saved_searchid.csv > Final_CSV/"$name"_user_saved_searchid.csv
