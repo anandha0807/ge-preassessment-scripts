@@ -10,7 +10,7 @@ read name
 
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
 WITH CTE as (
-select nh.NotesHistoryID, ag.ApprovalGalleryID, '\"\"\"'"' + nh.Text + '"'\"\"\"' as [Notes], nh.AssetID From NoteHistory nh 
+select nh.NotesHistoryID, ag.ApprovalGalleryID, '\"'"' + nh.Text + '"'\"' as [Notes], nh.AssetID From NoteHistory nh 
 inner join ApprovalGalleryUser agu on nh.ApprovalGalleryUserID=agu.ApprovalGalleryUserID
 inner join ApprovalGallery ag on agu.ApprovalGalleryID=ag.ApprovalGalleryID
 inner join Account a on ag.AccountID=a.AccountID
