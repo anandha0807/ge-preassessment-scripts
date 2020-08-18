@@ -5,7 +5,7 @@ read acc
 echo Enter the CSV Firstname:
 read name
 #ge-{AccountGroupName}-organizationID 
-sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;Select a.AccountGroupID, a.AccountID, a.AccountName, j.JobID, J.JobName from Job j
+sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;Select a.AccountGroupID, a.AccountID, '\"'"' + a.AccountName + '"'\"' as [AccountName], j.JobID, J.JobName from Job j
 inner join Account a on a.AccountID = j.OwnerAccountID
 where a.AccountGroupID = '$acc' and j.DeletedOn is null"  -s , -W -k1 > Output/"$name"_org.csv
 
@@ -210,7 +210,7 @@ order by ag.AccountGroupID,ag.Name,a.AccountID,a.AccountName" -s , -W -k1 > Outp
 #ge-{org_name}_Watermark_Detail.csv
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
 select ag.AccountGroupID, ag.Name as [AccountGroupName], a.AccountID,a.AccountName, arw.WatermarkID,agwt.ApprovalGalleryWatermarkTypeID as [WatermarkTypeID], agwt.Name as WatermarkType, 
-arw.ImageWatermark, '""'+arw.TextWatermark+'""' as [TextWatermark], '""'+arw.FileName+'""' as [FileName],arw.ModifiedBy,cast(arw.ModifiedDate as date) as [ModifiedDate],
+arw.ImageWatermark,  '\"'"' +arw.TextWatermark+ '"'\"' as [TextWatermark], '\"'"' +arw.FileName+ '"'\"' as [FileName],arw.ModifiedBy,cast(arw.ModifiedDate as date) as [ModifiedDate],
 arw.FontName,arw.FontSize,arw.TextColor,arw.TextAngle,arw.TextStyle,arw.TextOpacity,arw.Position from AccountGroup ag
 inner join Account a on ag.AccountGroupID=a.AccountGroupID
 inner join AssetRightsWatermark arw on a.AccountID=arw.AccountID
@@ -295,7 +295,7 @@ ag.Name as [AccountGroupName],
 a.AccountID,
 a.AccountName,
 g.ApprovalGalleryID,
-'""'+g.Name+'""' as ApprovalGalleryName,
+'\"'"' +g.Name+ '"'\"' as ApprovalGalleryName,
 cast(g.ExpirationDate as date)  as [ExpirationDate],
 g.CreatorUserID as CreatorID,
 concat(isnull(ug.FirstName,''),' ' ,isnull(ug.LastName,'')) as CreatedBy,
@@ -363,7 +363,7 @@ IsWatermarkEnabled,WatermarkType" -s , -W -k1 > Output/"$name"_ApprovalGallery.c
 
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
 WITH CTE as (
-select nh.NotesHistoryID, ag.ApprovalGalleryID, '""'+nh.Text+'""' as [Notes], nh.AssetID From NoteHistory nh 
+select nh.NotesHistoryID, ag.ApprovalGalleryID, '\"'"' +nh.Text+ '"'\"' as [Notes], nh.AssetID From NoteHistory nh 
 inner join ApprovalGalleryUser agu on nh.ApprovalGalleryUserID=agu.ApprovalGalleryUserID
 inner join ApprovalGallery ag on agu.ApprovalGalleryID=ag.ApprovalGalleryID
 inner join Account a on ag.AccountID=a.AccountID
@@ -387,7 +387,7 @@ where acg.AccountGroupID='$acc' and c.NotesHistoryID is not null and (
 #ge-{org_name}_ApprovalGallery_HashNotes_0.csv
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
 WITH CTE as (
-select nh.NotesHistoryID, ag.ApprovalGalleryID, '""'+nh.Text+'""' as [Notes], nh.AssetID From NoteHistory nh 
+select nh.NotesHistoryID, ag.ApprovalGalleryID, '\"'"' +nh.Text+ '"'\"' as [Notes], nh.AssetID From NoteHistory nh 
 inner join ApprovalGalleryUser agu on nh.ApprovalGalleryUserID=agu.ApprovalGalleryUserID
 inner join ApprovalGallery ag on agu.ApprovalGalleryID=ag.ApprovalGalleryID
 inner join Account a on ag.AccountID=a.AccountID
