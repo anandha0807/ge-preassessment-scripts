@@ -6,12 +6,10 @@ echo "Enter the AgID="
 read agid
 
 
-sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q 
-"
-set nocount on;
+sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
 
 --Variable declaration
-declare @AccountGroupID bigint = $agid;
+declare @AccountGroupID bigint = '$agid';
 declare @NoOfLightBoxGroup int, @NoOfJobs int, @NoOfAccounts int, @NoOfSavedSearch int, @NoOfTotalUsers int, @NoOfAssetNotes int,@NoOfMarkUps int,@NoOfTalentUsers int;
 declare @NoOfLightBoxComments bigint, @NoOfLightbox bigint, @NoOfFolders bigint, @NoOfLightBoxinvitation int,@NoOfLightBoxinvitation1 int, @NoOfDerivatives bigint;
 declare @NoOfAssets bigint, @NoOfRatings bigint, @NoOfMetadata bigint, @NoOfAssetHistory bigint,@NoOfMetadatamapped bigint,@NoOfMetadataunmapped bigint;
@@ -369,7 +367,7 @@ update @output_table set SortOrder=NULL where HighLevelSummary='Saved_Searches_t
 update @output_table set SortOrder=NULL where HighLevelSummary='Talent_Users_Total_records'
 update @output_table set SortOrder=15 where HighLevelSummary='users id-mappings'
 
-select HighLevelSummary, CASE Globaledit_Legacy WHEN -9999 THEN 0 ELSE Globaledit_Legacy END AS Globaledit_Legacy From @output_table where SortOrder is not null order by HighLevelSummary
-" -s "," -W -k1 > Output/highleveloutput.csv
+select HighLevelSummary, CASE Globaledit_Legacy WHEN -9999 THEN 0 ELSE Globaledit_Legacy END AS Globaledit_Legacy From @output_table where 
+SortOrder is not null order by HighLevelSummary" -s , -W -k1 > Output/highleveloutput.csv
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/highleveloutput.csv  > Final_CSV_Test/highleveloutput.csv
