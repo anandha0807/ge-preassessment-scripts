@@ -1,3 +1,4 @@
+set nocount on;
 
 --Variable declaration
 declare @AccountGroupID bigint = 1448;
