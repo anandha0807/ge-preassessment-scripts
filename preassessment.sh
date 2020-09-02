@@ -647,8 +647,7 @@ inner join Lightbox l on l.OwnerID = u.UserID
 inner join Invitation i on i.SharedObjectID = l.LightboxID
 inner join [dbo].[User] gu on i.GuestID=gu.UserID
 where ag.AccountGroupID = @AccountGroupID and acc.DeletedOn is null AND l.DeletedOn is null
-AND gu.Guest= 0 --Excluded shared Lightbox to Guest users
-AND i.ExpiredOn is NULL --Excluded Expired Light box
+
 
 ----Lightbox_Invitations-unmapped total records -- Sent to Guest users
 select @NoOfLightBoxinvitation1 = COUNT (distinct i.InvitationID)  from AccountGroup ag
