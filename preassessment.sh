@@ -15,13 +15,13 @@ select Accountid, Userid from
 (
 	select u.UserId,a.AccountID from [User] u
 	join Account a on a.AccountID = u.AccountID
-	where a.AccountGroupID = {AccountGroupID}
+	where a.AccountGroupID =  '$acc'
 	and a.DeletedOn is null
 	union
 	select u.UserId,a.AccountID from [User] u
 	join Dropbox d on d.RecipientID = u.UserId
 	join Account a on a.AccountID = d.AccountID
-	where a.AccountGroupID = {AccountGroupID}
+	where a.AccountGroupID =  '$acc'
 	and u.Guest = 1
 	and u.AccountID is null
 	union
@@ -30,7 +30,7 @@ select Accountid, Userid from
 	join Lightbox l on l.LightboxID = i.SharedObjectID
 	join [User] o on o.UserID = l.OwnerID
 	join Account a on a.AccountID = o.AccountID
-	where a.AccountGroupID = {AccountGroupID}
+	where a.AccountGroupID =  '$acc'
 	and u.Guest = 1
 	and u.AccountID is null
 ) a;" -s , -W -k1 > Output/"$name"_userid.csv
