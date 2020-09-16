@@ -11,7 +11,7 @@ where a.AccountGroupID = '$acc' and j.DeletedOn is null"  -s , -W -k1 > Output/"
 
 #ge-{AccountGroupName}-userID
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
-select Accountid, Userid from 
+select AccountID, UserID from 
 (
 	select u.UserId,a.AccountID from [User] u
 	join Account a on a.AccountID = u.AccountID
