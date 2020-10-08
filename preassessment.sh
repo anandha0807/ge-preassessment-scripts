@@ -372,7 +372,7 @@ and
 ( -- should has asset source
         agc.JobFolderID is not null
         or
-        agc.JobID is not null
+        agc.JobID is not  null
         or 
         agc.LightboxID is not null
 )
