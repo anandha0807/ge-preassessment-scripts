@@ -490,6 +490,135 @@ and
 --)" -s , -W -k1 > Output/"$name"_ApprovalGallery_HashNotes_0.csv
 
 
+#ge-{org_name}_FolderAssignmentsid.csv
+sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
+
+select 
+ag.AccountGroupID,
+ag.Name as AccountGroupName,
+a.AccountID,
+a.AccountName,
+u.UserID,
+concat(u.FirstName,' ',u.LastName) as UserName,
+u.Email,
+u.LoginName,
+uj.UserJobID,
+cast(uj.expirationdate as date) as UserJobExpirationDate,
+uj.JobID,
+j.JobName,
+uj.JobFolderID,
+dbo.udf_GetFolderPath(uj.JobFolderID) as FolderPath,
+ar.AccountRoleID,
+ar.RoleName
+From AccountGroup ag
+inner join Account a on ag.AccountGroupID=a.AccountGroupID
+inner join [User] u on a.AccountID=u.AccountID 
+inner join UserJob uj on u.UserID=uj.UserID
+inner join Job j on uj.JobID=j.JobID
+left join JobFolder jf on uj.JobFolderID=jf.JobFolderID
+left join AccountRole ar on uj.AccountRoleID=ar.AccountRoleID
+where a.DeletedOn is null and u.DeletedOn is null
+and ag.AccountGroupID='$acc'
+and j.DeletedOn is null
+and jf.DeletedOn is null" -s , -W -k1 > Output/"$name"_FolderAssignmentsid.csv
+
+#ge-{org_name}_comment_assetsid.csv
+
+sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
+
+declare @temp table(
+AssetID int,
+Notehistoryid int,
+NoOfUsersMentions int,
+MentionedUsers nvarchar(max),
+NHUserID int
+)
+declare @mention varchar(20)='data-mention=""',@delim varchar(1)='""'
+​
+DECLARE @NotesHistoryID int, @AssetID int, @Text varchar(max), @NHUserID int;   
+​
+​
+DECLARE note_cursor CURSOR FOR     
+SELECT nh.NotesHistoryID,at.AssetID, nh.[Text], nh.CreatedBy as NHUserID 
+FROM AccountGroup ag
+inner join Account a on ag.AccountGroupID=a.AccountGroupID
+inner join Job j on a.AccountID=j.OwnerAccountID
+inner join Asset at on j.JobID=at.JobID
+inner join NoteHistory nh on at.AssetID=nh.AssetID
+where a.DeletedOn is null and j.DeletedOn is null
+and at.DeletetedOn is null
+and ag.AccountGroupID='$acc'
+--and [Text] like '%data-mention%'
+--and a.AccountID=3389
+  
+OPEN note_cursor
+​
+FETCH NEXT FROM note_cursor     
+INTO @NotesHistoryID,@AssetID,@Text,@NHUserID
+​
+WHILE @@FETCH_STATUS = 0    
+BEGIN    
+​
+IF(@Text LIKE '%'+@mention+'%')
+BEGIN
+​
+DECLARE @StartPos INT, @EndPos int
+declare @count int =0;
+declare @users nvarchar(max)=''
+declare @user nvarchar(10)
+        set @StartPos =CASE WHEN CHARINDEX(@mention, @Text) > 0 THEN  CHARINDEX(@mention, @Text) +  LEN(@mention) ELSE CHARINDEX(@mention, @Text) END
+        set @EndPos = CHARINDEX(@delim, @Text,@StartPos)
+​
+    WHILE @StartPos > 0 and @EndPos > 0
+    BEGIN
+​
+        set @users = @users + SUBSTRING(@Text, (@StartPos),@EndPos - @StartPos) +','
+​
+        set @count = @count + 1;
+​
+        SET @Text = RIGHT(@Text, LEN(@Text) - @EndPos)
+​
+        set @StartPos =CASE WHEN CHARINDEX(@mention, @Text) > 0 THEN  CHARINDEX(@mention, @Text) +  LEN(@mention) ELSE CHARINDEX(@mention, @Text) END
+        set @EndPos = CHARINDEX(@delim, @Text,@StartPos)
+​
+        END
+​
+INSERT INTO @temp
+        SELECT @AssetID, @NotesHistoryID,@count,CASE WHEN @users <> '' THEN LEFT(@users,LEN(@users) - 1) ELSE @users END, @NHUserID
+​
+END
+ELSE
+BEGIN
+INSERT INTO @temp
+        SELECT @AssetID, @NotesHistoryID,0,'', @NHUserID
+END
+​
+​
+​
+FETCH NEXT FROM note_cursor     
+INTO @NotesHistoryID,@AssetID,@Text,@NHUserID
+   
+END     
+CLOSE note_cursor;    
+DEALLOCATE note_cursor;   
+​
+​
+----- Final Result -------
+select 
+ag.AccountGroupID as GEL_AccountGroupID,
+a.AccountID as GEL_AccountID,
+t.NHUserID as GEL_UserId,
+t.AssetID as GEL_AssetId,
+t.Notehistoryid as GEL_AssetNoteId,
+t.MentionedUsers as GEL_MentionedUsersIds,
+t.NoOfUsersMentions as GEL_MentionedUsersCount
+from @temp t
+inner join Asset at on t.AssetID=at.AssetID
+inner join Job j on at.JobID=j.JobID
+inner join Account a on j.OwnerAccountID=a.AccountID
+inner join AccountGroup ag on a.AccountGroupID=ag.AccountGroupID" -s , -W -k1 > Output/"$name"_comments_assetsid.csv
+
+
 #HighLevelSummary-query
 
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
@@ -855,6 +984,8 @@ update @output_table set SortOrder=15 where HighLevelSummary='users id-mappings'
 select HighLevelSummary, CASE Globaledit_Legacy WHEN -9999 THEN 0 ELSE Globaledit_Legacy END AS Globaledit_Legacy From @output_table where 
 SortOrder is not null order by HighLevelSummary" -s , -W -k1 > Output/"$name"_GEL_HighLevelSummary.csv
 
+
+
 sleep 2s
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_GEL_HighLevelSummary.csv > Final_CSV/"$name"_GEL_HighLevelSummary.csv
@@ -883,6 +1014,8 @@ sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_assetHistory_item_TypeID.cs
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_asset_metadataid_mapped.csv > Final_CSV/"$name"_asset_metadataid_mapped.csv
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_asset_metadataid_unmapped.csv > Final_CSV/"$name"_asset_metadataid_unmapped.csv
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_unsupported_files.csv > Final_CSV/"$name"_unsupported_files.csv
+sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_FolderAssignmentsid.csv > Final_CSV/"$name"_FolderAssignmentsid.csv
+sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_comments_assetsid.csv > Final_CSV/"$name"_comments_assetsid.csv
 
 
 
