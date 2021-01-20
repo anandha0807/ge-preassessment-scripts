@@ -6,7 +6,7 @@ read acc
 echo Enter the CSV Firstname:
 read name
 
-echo "\n**************Generating Reports********************"
+echo "**************Generating Reports********************"
 
 sleep 1s
 
@@ -27,7 +27,7 @@ dh=$(echo "$dt2/3600" | bc)
 dt3=$(echo "$dt2-3600*$dh" | bc)
 dm=$(echo "$dt3/60" | bc)
 ds=$(echo "$dt3-60*$dm" | bc)
-timetaken=$(LC_NUMERIC=C printf "TotalRuntime: %d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
 
 echo "Report-1 "$name"_org.csv -> done TimeTaken: $timetaken"
 
@@ -73,7 +73,7 @@ dh=$(echo "$dt2/3600" | bc)
 dt3=$(echo "$dt2-3600*$dh" | bc)
 dm=$(echo "$dt3/60" | bc)
 ds=$(echo "$dt3-60*$dm" | bc)
-timetaken=$(LC_NUMERIC=C printf "TotalRuntime: %d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
 
 echo "Report-2 "$name"_userid.csv -> done TimeTaken: $timetaken"
 
@@ -101,13 +101,15 @@ dh=$(echo "$dt2/3600" | bc)
 dt3=$(echo "$dt2-3600*$dh" | bc)
 dm=$(echo "$dt3/60" | bc)
 ds=$(echo "$dt3-60*$dm" | bc)
-timetaken=$(LC_NUMERIC=C printf "TotalRuntime: %d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
 
 echo "Report-3 "$name"_user_saved_searchid.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
 echo "Processing "$name"_Jobfolderid.csv file"
+
+res1=$(date +%s.%N)
 
 #ge-{AccountGroupName}-jobfolderID
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;select acc.AccountId, j.JobID, jf.JobFolderId, jf.ParentID from Account acc
@@ -117,11 +119,23 @@ where acc.AccountGroupID = '$acc' and j.DeletedOn is null and jf.DeletedOn is nu
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_Jobfolderid.csv > Final_CSV/"$name"_Jobfolderid.csv
 
-echo "Report-4 "$name"_Jobfolderid.csv -> done"
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-4 "$name"_Jobfolderid.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
 echo "Processing "$name"_assetid.csv file"
+
+res1=$(date +%s.%N)
 
 #ge-{AccountGroupName}-assetID
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;select distinct a.JobID, acc.AccountID, a.AssetID, '\"\"\"'"' + a.Filename + '"'\"\"\"' as Filename from AccountGroup ag
@@ -132,11 +146,23 @@ where ag.AccountGroupID = '$acc'  and a.DeletetedOn is null and j.DeletedOn is n
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_assetid.csv > Final_CSV/"$name"_assetid.csv
 
-echo "Report-5 "$name"_assetid.csv -> done"
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-5 "$name"_assetid.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
 echo "Processing "$name"_Asset_derivative_id.csv file"
+
+res1=$(date +%s.%N)
 
 #ge-{AccountGroupName}-asset-derivativeID
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;select distinct a.AssetID, acc.AccountID, ad.AssetDerivativeID, ad.AssetTypeCd from Account acc
@@ -148,11 +174,23 @@ group by acc.AccountID,a.AssetID, ad.AssetDerivativeID, ad.AssetTypeCd" -s , -W 
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_Asset_derivative_id.csv > Final_CSV/"$name"_Asset_derivative_id.csv
 
-echo "Report-6 "$name"_Asset_derivative_id.csv -> done"
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-6 "$name"_Asset_derivative_id.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
 echo "Processing "$name"_asset_metadataid.csv file"
+
+res1=$(date +%s.%N)
 
 #ge-{AccountGroupName}-asset-metadataID
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;select distinct a.AssetID, am.AssetMetadataID,acc.AccountID from AccountGroup ag
@@ -164,11 +202,23 @@ where ag.AccountGroupID = '$acc' and a.DeletetedOn is null and j.DeletedOn is nu
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_asset_metadataid.csv > Final_CSV/"$name"_asset_metadataid.csv
 
-echo "Report-7 "$name"_asset_metadataid.csv -> done"
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-7 "$name"_asset_metadataid.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
 echo "Processing "$name"_asset_markupid.csv file"
+
+res1=$(date +%s.%N)
 
 #ge-{AccountGroupName}-asset-markupID
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;select distinct a.AssetID, acc.AccountID,am.AssetMarkupId, count(ami.AssetMarkupItemID) as MarkupItems from Account acc
@@ -181,11 +231,23 @@ group by acc.AccountID,am.AssetMarkupId, a.AssetID order by a.AssetID asc" -s , 
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_asset_markupid.csv > Final_CSV/"$name"_asset_markupid.csv
 
-echo "Report-8 "$name"_asset_markupid.csv -> done"
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-8 "$name"_asset_markupid.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
 echo "Processing "$name"_asset_ratingid.csv file"
+
+res1=$(date +%s.%N)
 
 #ge-{AccountGroupName}-asset-ratingID
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;select aa.AssetID,
@@ -203,11 +265,23 @@ where a.AccountGroupID = '$acc' AND j.DeletedOn is null and aa.DeletetedOn is nu
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_asset_ratingid.csv > Final_CSV/"$name"_asset_ratingid.csv
 
-echo "Report-9 "$name"_asset_ratingid.csv -> done"
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-9 "$name"_asset_ratingid.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
 echo "Processing "$name"_asset_note_historyid.csv file"
+
+res1=$(date +%s.%N)
 
 #ge-{AccountGroupName}-asset-notehistoryID
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;select distinct a.AssetID, acc.AccountID,nh.NotesHistoryID, nh.CreatedBy from AccountGroup ag
@@ -219,11 +293,23 @@ where ag.AccountGroupID = '$acc' and a.DeletetedOn is null and j.DeletedOn is nu
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_asset_note_historyid.csv > Final_CSV/"$name"_asset_note_historyid.csv
 
-echo "Report-10 "$name"_asset_note_historyid.csv -> done"
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-10 "$name"_asset_note_historyid.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
 echo "Processing "$name"_lightbox_id.csvfile"
+
+res1=$(date +%s.%N)
 
 #ge-{AccountGroupName}-lightboxID
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
@@ -239,11 +325,23 @@ group by l.lightboxid,acc.AccountID" -s , -W -k1 > Output/"$name"_lightbox_id.cs
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_lightbox_id.csv > Final_CSV/"$name"_lightbox_id.csv
 
-echo "Report-11 "$name"_lightbox_id.csv -> done"
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-11 "$name"_lightbox_id.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
 echo "Processing "$name"_lightbox_groupid.csv file"
+
+res1=$(date +%s.%N)
 
 #ge-{AccountGroupName}-lightboxgroupID
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;select distinct lg.LightboxGroupId, acc.AccountID,count(l.lightboxid) NoOfLightboxes from AccountGroup ag
@@ -256,11 +354,23 @@ group by lg.lightboxgroupid,acc.AccountID" -s , -W -k1 > Output/"$name"_lightbox
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_lightbox_groupid.csv > Final_CSV/"$name"_lightbox_groupid.csv
 
-echo "Report-12 "$name"_lightbox_groupid.csv -> done"
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-12 "$name"_lightbox_groupid.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
 echo "Processing "$name"_lightbox_commentid.csv"
+
+res1=$(date +%s.%N)
 
 #ge-{AccountGroupName}-lightbox-commentID
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
@@ -275,11 +385,23 @@ AND l.DeletedOn is null" -s , -W -k1 > Output/"$name"_lightbox_commentid.csv
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_lightbox_commentid.csv > Final_CSV/"$name"_lightbox_commentid.csv
 
-echo "Report-13 "$name"_lightbox_commentid.csv -> done"
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-13 "$name"_lightbox_commentid.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
 echo "Processing "$name"_lightbox_invitationid.csv file"
+
+res1=$(date +%s.%N)
 
 #ge-{AccountGroupName}-lightbox-invitationID
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
@@ -295,11 +417,23 @@ order by i.InvitationID" -s , -W -k1 > Output/"$name"_lightbox_invitationid.csv
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_lightbox_invitationid.csv > Final_CSV/"$name"_lightbox_invitationid.csv
 
-echo "Report-14 "$name"_lightbox_invitationid.csv-> done"
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-14 "$name"_lightbox_invitationid.csv-> done TimeTaken: $timetaken"
 
 sleep 1s
 
 echo "Processing "$name"_assetHistory_item_TypeID.csv file"
+
+res1=$(date +%s.%N)
 
 #ge-{AccountGroupName}-AssetHistory-ItemTypeID
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;declare @assetstable as table(assetid bigint);
@@ -319,11 +453,23 @@ order by a.assetid" -s , -W -k1 > Output/"$name"_assetHistory_item_TypeID.csv
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_assetHistory_item_TypeID.csv > Final_CSV/"$name"_assetHistory_item_TypeID.csv
 
-echo "Report-15 "$name"_assetHistory_item_TypeID.csv-> done"
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-15 "$name"_assetHistory_item_TypeID.csv-> done TimeTaken: $timetaken"
 
 sleep 1s
 
 echo "Processing "$name"_asset_metadataid_mapped.csv file"
+
+res1=$(date +%s.%N)
 
 #ge-{AccountGroupName}-asset_metadataid_mapped
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
@@ -337,7 +483,17 @@ AND am.MetadataPropertyID  NOT IN (60,62,63,64,65,78,79,80,81,82,83,84,85,86,87,
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_asset_metadataid_mapped.csv > Final_CSV/"$name"_asset_metadataid_mapped.csv
 
-echo "Report-16 "$name"_asset_metadataid_mapped.csv -> done"
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-16 "$name"_asset_metadataid_mapped.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
@@ -361,6 +517,8 @@ sleep 1s
 
 echo "Processing "$name"_unsupported_files.csv file"
 
+res1=$(date +%s.%N)
+
 #ge-{unsupported-files)
 
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
@@ -377,11 +535,23 @@ where acc.AccountGroupID= '$acc' and j.deletedon is null and a.DeletetedOn is nu
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_unsupported_files.csv > Final_CSV/"$name"_unsupported_files.csv
 
-echo "Report-18 "$name"_unsupported_files.csv -> done"
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-18 "$name"_unsupported_files.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
 echo "Processing "$name"_Watermarks.csv file"
+
+res1=$(date +%s.%N)
 
 #ge-{org_name}_Watermarks.csv
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
@@ -396,11 +566,23 @@ order by ag.AccountGroupID,a.AccountID" -s , -W -k1 > Output/"$name"_Watermarks.
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_Watermarks.csv > Final_CSV/"$name"_Watermarks.csv
 
-echo "Report-19 "$name"_Watermarks.csv -> done"
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-19 "$name"_Watermarks.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
 echo "Processing "$name"_WatermarkAssets.csvfile"
+
+res1=$(date +%s.%N)
 
 #ge-{org_name}_WatermarkAssets.csv
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
@@ -416,12 +598,23 @@ order by ag.AccountGroupID,ag.Name,a.AccountID,a.AccountName" -s , -W -k1 > Outp
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_WatermarkAssets.csv > Final_CSV/"$name"_WatermarkAssets.csv
 
-echo "Report-20 "$name"_WatermarkAssets.csv -> done"
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-20 "$name"_WatermarkAssets.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
 echo "Processing "$name"_Watermark_Detail.csv file"
 
+res1=$(date +%s.%N)
 
 #ge-{org_name}_Watermark_Detail.csv
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
@@ -435,11 +628,23 @@ where ag.AccountGroupID='$acc'" -s , -W -k1 > Output/"$name"_Watermark_Detail.cs
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_Watermark_Detail.csv > Final_CSV/"$name"_Watermark_Detail.csv
 
-echo "Report-21 "$name"_Watermark_Detail.csv -> done"
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-21 "$name"_Watermark_Detail.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
 echo "Processing "$name"_LightBox_Details.csv file"
+
+res1=$(date +%s.%N)
 
 #ge-{org_name}_LightBox_Details.csv
 
@@ -509,11 +714,23 @@ order by LightboxID" -s , -W -k1 > Output/"$name"_LightBox_Details.csv
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_LightBox_Details.csv > Final_CSV/"$name"_LightBox_Details.csv
 
-echo "Report-22 "$name"_LightBox_Details.csv -> done"
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-22 "$name"_LightBox_Details.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
 echo "Processing "$name"_ApprovalGallery.csv file"
+
+res1=$(date +%s.%N)
 
 #ge-{org_name}_ApprovalGallery_Detail.csv
 
@@ -602,11 +819,23 @@ IsWatermarkEnabled,WatermarkType;" -s , -W -k1 > Output/"$name"_ApprovalGallery.
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_ApprovalGallery.csv > Final_CSV/"$name"_ApprovalGallery.csv
 
-echo "Report-23 "$name"_ApprovalGallery.csv -> done"
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-23 "$name"_ApprovalGallery.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
 echo "Processing "$name"_ApprovalGallery_HashNotes_1.csv file"
+
+res1=$(date +%s.%N)
 
 #ge-{org_name}_ApprovalGallery_HashNotes_1.csv
 
@@ -657,11 +886,23 @@ and
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_ApprovalGallery_HashNotes_1.csv > Final_CSV/"$name"_ApprovalGallery_HashNotes_1.csv
 
-echo "Report-24 "$name"_ApprovalGallery_HashNotes_1.csv -> done"
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-24 "$name"_ApprovalGallery_HashNotes_1.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
 echo "Processing "$name"_ApprovalGallery_HashNotes_0.csv file"
+
+res1=$(date +%s.%N)
 
 #ge-{org_name}_ApprovalGallery_HashNotes_0.csv
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
@@ -712,11 +953,23 @@ and
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_ApprovalGallery_HashNotes_0.csv > Final_CSV/"$name"_ApprovalGallery_HashNotes_0.csv
 
-echo "Report-25 "$name"_ApprovalGallery_HashNotes_0.csv-> done"
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-25 "$name"_ApprovalGallery_HashNotes_0.csv-> done TimeTaken: $timetaken"
 
 sleep 1s
 
 echo "Processing "$name"_FolderAssignmentsid.csv file"
+
+res1=$(date +%s.%N)
 
 #ge-{org_name}_FolderAssignmentsid.csv
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
@@ -752,11 +1005,23 @@ and jf.DeletedOn is null" -s , -W -k1 > Output/"$name"_FolderAssignmentsid.csv
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_FolderAssignmentsid.csv > Final_CSV/"$name"_FolderAssignmentsid.csv
 
-echo "Report-26 "$name"_FolderAssignmentsid.csv -> done"
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-26 "$name"_FolderAssignmentsid.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
 echo "Processing "$name"_comments_assetsid.csv file"
+
+res1=$(date +%s.%N)
 
 #ge-{org_name}_comment_assetsid.csv
 
@@ -856,8 +1121,17 @@ inner join AccountGroup ag on a.AccountGroupID=ag.AccountGroupID" -s , -W -k1 > 
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_comments_assetsid.csv > Final_CSV/"$name"_comments_assetsid.csv
 
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
 
-echo "Report-27 "$name"_comments_assetsid.csv -> done"
+echo "Report-27 "$name"_comments_assetsid.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
