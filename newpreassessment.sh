@@ -13,6 +13,7 @@ sleep 1s
 echo "Processing "$name"_org.csv file"
 #ge-{AccountGroupName}-organizationID 
 res1=$(date +%s.%N)
+res11=$(date +%s.%N)
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;Select a.AccountGroupID, a.AccountID, '\"'"' + a.AccountName + '"'\"' as [AccountName], j.JobID, J.JobName from Job j
 inner join Account a on a.AccountID = j.OwnerAccountID
 where a.AccountGroupID = '$acc' and j.DeletedOn is null"  -s , -W -k1 > Output/"$name"_org.csv
@@ -1134,6 +1135,18 @@ timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
 echo "Report-27 "$name"_comments_assetsid.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
+
+res21=$(date +%s.%N)
+dt=$(echo "$res21 - $res11" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Total TimeTaken for all reports: $timetaken"
 
 echo "**************All reports has been generated!!!******************"
 
