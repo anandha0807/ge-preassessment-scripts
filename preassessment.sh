@@ -1,3 +1,4 @@
+#!/bin/bash
 echo Enter account groupid:
 read acc
 #echo Enter the Accountid for getting Unsupported Files:
