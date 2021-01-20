@@ -6,19 +6,36 @@ read acc
 echo Enter the CSV Firstname:
 read name
 
+echo "\n**************Generating Reports********************"
+
+sleep 1s
+
 echo "Processing "$name"_org.csv file"
 #ge-{AccountGroupName}-organizationID 
+res1=$(date +%s.%N)
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;Select a.AccountGroupID, a.AccountID, '\"'"' + a.AccountName + '"'\"' as [AccountName], j.JobID, J.JobName from Job j
 inner join Account a on a.AccountID = j.OwnerAccountID
 where a.AccountGroupID = '$acc' and j.DeletedOn is null"  -s , -W -k1 > Output/"$name"_org.csv
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_org.csv > Final_CSV/"$name"_org.csv
 
-echo "Report-1 "$name"_org.csv -> done"
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "TotalRuntime: %d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-1 "$name"_org.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
 echo "Processing "$name"_userid.csv file"
+
+res1=$(date +%s.%N)
 
 #ge-{AccountGroupName}-userID
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
@@ -48,11 +65,23 @@ select AccountID, UserID from
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_userid.csv > Final_CSV/"$name"_userid.csv
 
-echo "Report-2 "$name"_userid.csv -> done"
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "TotalRuntime: %d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-2 "$name"_userid.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
 echo "Processing "$name"_user_saved_searchid.csv file"
+
+res1=$(date +%s.%N)
 
 #ge-{AccountGroupName}-user-savedsearchID
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;select acc.AccountID,ss.OwnerID, ss.SavedSearchID, count(ssi.SavedSearchQueryItemID) as NoOfSavedSearchQueryItem from Account acc
@@ -64,7 +93,17 @@ group by ss.SavedSearchID, ss.OwnerID, acc.AccountID" -s , -W -k1 > Output/"$nam
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_user_saved_searchid.csv > Final_CSV/"$name"_user_saved_searchid.csv
 
-echo "Report-3 "$name"_user_saved_searchid.csv -> done"
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "TotalRuntime: %d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-3 "$name"_user_saved_searchid.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
@@ -822,7 +861,7 @@ echo "Report-27 "$name"_comments_assetsid.csv -> done"
 
 sleep 1s
 
-echo "All reports has been generated!!"
+echo "**************All reports has been generated!!!******************"
 
 
 

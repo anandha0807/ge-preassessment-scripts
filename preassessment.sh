@@ -5,6 +5,8 @@ read acc
 #read accid
 echo Enter the CSV Firstname:
 read name
+
+
 #ge-{AccountGroupName}-organizationID 
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;Select a.AccountGroupID, a.AccountID, '\"'"' + a.AccountName + '"'\"' as [AccountName], j.JobID, J.JobName from Job j
 inner join Account a on a.AccountID = j.OwnerAccountID
