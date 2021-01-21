@@ -177,7 +177,7 @@ select distinct a.AssetID, acc.AccountID, ad.AssetDerivativeID, ad.AssetTypeCd f
 inner join Job j on j.OwnerAccountID = acc.AccountID
 inner join Asset a on a.JobID = j.JobID
 inner join AssetDerivative ad on ad.AssetID = a.AssetID
-where acc.AccountID = {AccountID} and j.DeletedOn is null and ad.DeletedOn is null and a.DeletetedOn is null and ad.AssetTypeCd NOT IN ('SM_THUMB','LG_THUMB','MED_RES','SCR_RES','PVIEW','PVIEW_VID','PVIEW_VID_MED','PVIEW_VID_HIGH','PVIEW_VID_THUMB','PVIEW_HR', 'PDF_SWF')
+where acc.AccountID = '$acc' and j.DeletedOn is null and ad.DeletedOn is null and a.DeletetedOn is null and ad.AssetTypeCd NOT IN ('SM_THUMB','LG_THUMB','MED_RES','SCR_RES','PVIEW','PVIEW_VID','PVIEW_VID_MED','PVIEW_VID_HIGH','PVIEW_VID_THUMB','PVIEW_HR', 'PDF_SWF')
 group by acc.AccountID,a.AssetID, ad.AssetDerivativeID, ad.AssetTypeCd" -s , -W -k1 > Output/ge-"$name"_Asset_derivative_id.csv
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/ge-"$name"_Asset_derivative_id.csv > Final_CSV/ge-"$name"_Asset_derivative_id.csv
@@ -207,7 +207,7 @@ inner join Account acc on acc.AccountGroupID = ag.AccountGroupID
 inner join Job j on j.OwnerAccountID = acc.AccountID
 inner join Asset a on a.JobID = j.JobiD
 inner join AssetMetadata am on am.AssetID = a.AssetID
-where acc.AccountID = {AccountID} and a.DeletetedOn is null and j.DeletedOn is null order by a.AssetID asc" -s , -W -k1 > Output/ge-"$name"_asset_metadataid.csv
+where acc.AccountID = '$acc' and a.DeletetedOn is null and j.DeletedOn is null order by a.AssetID asc" -s , -W -k1 > Output/ge-"$name"_asset_metadataid.csv
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/ge-"$name"_asset_metadataid.csv > Final_CSV/ge-"$name"_asset_metadataid.csv
 
@@ -236,7 +236,7 @@ inner join job j on j.OwnerAccountID = acc.AccountID
 inner join Asset a on a.JobID = j.JobID
 inner join AssetMarkup am on am.AssetID = a.AssetID
 left join AssetMarkupItem ami on ami.AssetMarkupID = am.AssetMarkupID
-where acc.AccountID = {AccountID} AND a.DeletetedOn is NULL AND j.DeletedOn is null
+where acc.AccountID = '$acc' AND a.DeletetedOn is NULL AND j.DeletedOn is null
 group by acc.AccountID,am.AssetMarkupId, a.AssetID order by a.AssetID asc" -s , -W -k1 > Output/ge-"$name"_asset_markupid.csv
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/ge-"$name"_asset_markupid.csv > Final_CSV/ge-"$name"_asset_markupid.csv
@@ -272,7 +272,7 @@ from Account a
 inner join Job j on j.OwnerAccountID = a.AccountID
 inner join Asset aa on aa.JobID = j.JobID
 left join assetcolor ac on ac.assetcolorid = aa.color
-where a.AccountID = {AccountID} AND j.DeletedOn is null and aa.DeletetedOn is null" -s , -W -k1 > Output/ge-"$name"_asset_ratingid.csv
+where a.AccountID = '$acc' AND j.DeletedOn is null and aa.DeletetedOn is null" -s , -W -k1 > Output/ge-"$name"_asset_ratingid.csv
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/ge-"$name"_asset_ratingid.csv > Final_CSV/ge-"$name"_asset_ratingid.csv
 
@@ -301,7 +301,7 @@ inner join Account acc on acc.AccountGroupID = ag.AccountGroupID
 inner join Job j on j.OwnerAccountID = acc.AccountID
 inner join Asset a on a.JobID = j.JobiD
 inner join NoteHistory nh on nh.AssetID = a.AssetID
-where acc.AccountID = {AccountID} and a.DeletetedOn is null and j.DeletedOn is null and nh.ApprovalGalleryUserID is NULL" -s , -W -k1 > Output/ge-"$name"_asset_note_historyid.csv
+where acc.AccountID = '$acc' and a.DeletetedOn is null and j.DeletedOn is null and nh.ApprovalGalleryUserID is NULL" -s , -W -k1 > Output/ge-"$name"_asset_note_historyid.csv
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/ge-"$name"_asset_note_historyid.csv > Final_CSV/ge-"$name"_asset_note_historyid.csv
 
@@ -330,7 +330,7 @@ inner join Account acc on acc.AccountGroupID = ag.AccountGroupID
 inner join [dbo].[User] u on u.AccountID = acc.AccountID
 inner join Lightbox l on l.OwnerID = u.UserID
 left join lightboxasset la on la.lightboxid = l.lightboxid
-where acc.AccountID = {AccountID} AND acc.DeletedOn is null AND l.DeletedOn is null 
+where acc.AccountID = '$acc' AND acc.DeletedOn is null AND l.DeletedOn is null 
 group by l.lightboxid,acc.AccountID" -s , -W -k1 > Output/ge-"$name"_lightbox_id.csv
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/ge-"$name"_lightbox_id.csv > Final_CSV/ge-"$name"_lightbox_id.csv
@@ -360,7 +360,7 @@ inner join Account acc on acc.AccountGroupID = ag.AccountGroupID
 inner join [dbo].[User] u on u.AccountID = acc.AccountID
 inner join LightboxGroup lg on lg.userid = u.userid
 left join lightbox l on l.lightboxid = lg.lightboxid
-where acc.AccountID = {AccountID} and acc.DeletedOn is null and u.DeletedOn is null and lg.Name is not null
+where acc.AccountID = '$acc' and acc.DeletedOn is null and u.DeletedOn is null and lg.Name is not null
 group by lg.lightboxgroupid,acc.AccountID" -s , -W -k1 > Output/ge-"$name"_lightbox_groupid.csv
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/ge-"$name"_lightbox_groupid.csv > Final_CSV/ge-"$name"_lightbox_groupid.csv
@@ -390,7 +390,7 @@ inner join Account acc on acc.AccountGroupID = ag.AccountGroupID
 inner join [dbo].[User] u on u.AccountID = acc.AccountID
 inner join Lightbox l on l.OwnerID = u.UserID
 inner join lightboxnote ln on ln.lightboxid = l.lightboxid
-where acc.AccountID = {AccountID} AND acc.DeletedOn is null AND l.DeletedOn is null" -s , -W -k1 > Output/ge-"$name"_lightbox_commentid.csv
+where acc.AccountID = '$acc' AND acc.DeletedOn is null AND l.DeletedOn is null" -s , -W -k1 > Output/ge-"$name"_lightbox_commentid.csv
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/ge-"$name"_lightbox_commentid.csv > Final_CSV/ge-"$name"_lightbox_commentid.csv
 
@@ -420,7 +420,7 @@ inner join [dbo].[User] u on u.AccountID = acc.AccountID
 inner join Lightbox l on l.OwnerID = u.UserID
 inner join Invitation i on i.SharedObjectID = l.LightboxID
 inner join [dbo].[User] gu on i.GuestID=gu.UserID
-where acc.AccountID = {AccountID} and acc.DeletedOn is null AND l.DeletedOn is null  
+where acc.AccountID = '$acc' and acc.DeletedOn is null AND l.DeletedOn is null  
 order by i.InvitationID" -s , -W -k1 > Output/ge-"$name"_lightbox_invitationid.csv
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/ge-"$name"_lightbox_invitationid.csv > Final_CSV/ge-"$name"_lightbox_invitationid.csv
@@ -450,7 +450,7 @@ insert into @assetstable select distinct a.AssetID from AccountGroup ag
 inner join Account acc on acc.AccountGroupID = ag.AccountGroupID
 inner join Job j on j.OwnerAccountID = acc.AccountID
 inner join Asset a on a.JobID = j.JobiD
-where acc.AccountID = {AccountID} and a.DeletetedOn is null and j.DeletedOn is null  
+where acc.AccountID = '$acc' and a.DeletetedOn is null and j.DeletedOn is null  
 order by a.AssetID
 
 select distinct a.AssetID, ah.AssetHistoryID, ah.AssetHistoryItemTypeID, hit.ItemTypeName, j.OwnerAccountID as AccountID from AssetHistory ah
@@ -488,7 +488,7 @@ inner join Account acc on acc.AccountGroupID = ag.AccountGroupID
 inner join Job j on j.OwnerAccountID = acc.AccountID
 inner join Asset a on a.JobID = j.JobiD
 inner join AssetMetadata am on am.AssetID = a.AssetID
-where acc.AccountID = {AccountID} and a.DeletetedOn is null and j.DeletedOn is null
+where acc.AccountID = '$acc' and a.DeletetedOn is null and j.DeletedOn is null
 AND am.MetadataPropertyID  NOT IN (60,62,63,64,65,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,13043,13046,13047)" -s , -W -k1 > Output/ge-"$name"_asset_metadataid_mapped.csv
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/ge-"$name"_asset_metadataid_mapped.csv > Final_CSV/ge-"$name"_asset_metadataid_mapped.csv
@@ -516,7 +516,7 @@ inner join Account acc on acc.AccountGroupID = ag.AccountGroupID
 inner join Job j on j.OwnerAccountID = acc.AccountID
 inner join Asset a on a.JobID = j.JobiD
 inner join AssetMetadata am on am.AssetID = a.AssetID
-where acc.AccountID = {AccountID} and a.DeletetedOn is null and j.DeletedOn is null
+where acc.AccountID = '$acc' and a.DeletetedOn is null and j.DeletedOn is null
 AND am.MetadataPropertyID  IN (60,62,63,64,65,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,13043,13046,13047)" -s , -W -k1 > Output/ge-"$name"_asset_metadataid_unmapped.csv
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/ge-"$name"_asset_metadataid_unmapped.csv > Final_CSV/ge-"$name"_asset_metadataid_unmapped.csv
@@ -541,7 +541,7 @@ IIF(
  from job j
 inner join asset a on a.jobid = j.jobid
 inner join Account acc on j.OwnerAccountID = acc.AccountID
-where acc.AccountID= {AccountID} and j.deletedon is null and a.DeletetedOn is null and RIGHT(a.filename, 3) in ('.db', '(1)', '019', 'cof', 'cos', 'cot', 'eip', 'MOV', 'mp4', 'pdf', 'xmp')" -s , -W -k1 > Output/ge-"$name"_unsupported_files.csv 
+where acc.AccountID= '$acc' and j.deletedon is null and a.DeletetedOn is null and RIGHT(a.filename, 3) in ('.db', '(1)', '019', 'cof', 'cos', 'cot', 'eip', 'MOV', 'mp4', 'pdf', 'xmp')" -s , -W -k1 > Output/ge-"$name"_unsupported_files.csv 
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/ge-"$name"_unsupported_files.csv > Final_CSV/ge-"$name"_unsupported_files.csv
 
@@ -565,7 +565,7 @@ res1=$(date +%s.%N)
 
 #ge-{org_name}_Watermarks.csv
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
-declare @AccountID int ={AccountID};
+declare @AccountID int ='$acc';
 select 
 ag.AccountGroupID, ag.Name as [AccountGroupName],
 a.AccountID,a.AccountName,
@@ -601,7 +601,7 @@ res1=$(date +%s.%N)
 
 #ge-{org_name}_WatermarkAssets.csv
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
-declare @AccountID int ={AccountID};
+declare @AccountID int ='$acc';
 select ag.AccountGroupID,ag.Name as [AccountGroupName], a.AccountID,a.AccountName,count(distinct arr.AssetID) as [AssetCount]  From AccountGroup ag
 inner join Account a on ag.AccountGroupID=a.AccountGroupID
 inner join job j on a.AccountID=j.OwnerAccountID
@@ -634,7 +634,7 @@ res1=$(date +%s.%N)
 
 #ge-{org_name}_Watermark_Detail.csv
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
-declare @AccountID int = {AccountID};
+declare @AccountID int = '$acc';
 select ag.AccountGroupID, ag.Name as [AccountGroupName], a.AccountID,a.AccountName, arw.WatermarkID,agwt.ApprovalGalleryWatermarkTypeID as [WatermarkTypeID], agwt.Name as WatermarkType, 
 arw.ImageWatermark,  '\"'"' +arw.TextWatermark+ '"'\"' as [TextWatermark], '\"'"' +arw.FileName+ '"'\"' as [FileName],arw.ModifiedBy,cast(arw.ModifiedDate as date) as [ModifiedDate],
 arw.FontName,arw.FontSize,arw.TextColor,arw.TextAngle,arw.TextStyle,arw.TextOpacity,arw.Position from AccountGroup ag
@@ -666,7 +666,7 @@ res1=$(date +%s.%N)
 #ge-{org_name}_LightBox_Details.csv
 
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
-declare @AccountID int = {AccountID};
+declare @AccountID int = '$acc';
 WITH CTE as(
 select distinct ag.AccountGroupID, ag.name as [AccountGroupName],
 a.AccountID, a.AccountName,lb.lightboxid,
@@ -752,7 +752,7 @@ res1=$(date +%s.%N)
 #ge-{org_name}_ApprovalGallery_Detail.csv
 
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
-declare @AccountID int = {AccountID};
+declare @AccountID int = '$acc';
 with CTE as(
 select distinct
 ag.AccountGroupID,
@@ -856,7 +856,7 @@ res1=$(date +%s.%N)
 #ge-{org_name}_ApprovalGallery_HashNotes_1.csv
 
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
-declare @AccountID int = {AccountID};
+declare @AccountID int = '$acc';
 WITH CTE as (
 select nh.NotesHistoryID, ag.ApprovalGalleryID, '\"'"' +nh.Text+ '"'\"' as [Notes], nh.AssetID From NoteHistory nh 
 inner join ApprovalGalleryUser agu on nh.ApprovalGalleryUserID=agu.ApprovalGalleryUserID
@@ -919,7 +919,7 @@ res1=$(date +%s.%N)
 
 #ge-{org_name}_ApprovalGallery_HashNotes_0.csv
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
-declare @AccountID int = {AccountID};
+declare @AccountID int = '$acc';
 WITH CTE as (
 select nh.NotesHistoryID, ag.ApprovalGalleryID, '\"'"' +nh.Text+ '"'\"' as [Notes], nh.AssetID From NoteHistory nh 
 inner join ApprovalGalleryUser agu on nh.ApprovalGalleryUserID=agu.ApprovalGalleryUserID
@@ -984,7 +984,7 @@ res1=$(date +%s.%N)
 
 #ge-{org_name}_FolderAssignmentsid.csv
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
-declare @AccountID int ={AccountID};​
+declare @AccountID int ='$acc';​
 select 
 ag.AccountGroupID as GEL_AccountGroupID,
 a.AccountID as GEL_AccountID,
@@ -1022,7 +1022,7 @@ res1=$(date +%s.%N)
 #ge-{org_name}_comment_assetsid.csv
 
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
-declare @AccountID int= {AccountID} ;
+declare @AccountID int= '$acc' ;
 declare @temp table(
 AssetID int,
 Notehistoryid int,
@@ -1139,7 +1139,7 @@ insert into @lbs select distinct l.LightboxID from AccountGroup ag
 inner join Account acc on acc.AccountGroupID = ag.AccountGroupID
 inner join [dbo].[User] u on u.AccountID = acc.AccountID
 inner join Lightbox l on l.OwnerID = u.UserID
-where acc.AccountID = {AccountID} and acc.DeletedOn is null and u.DeletedOn is null and l.DeletedOn is null
+where acc.AccountID = '$acc' and acc.DeletedOn is null and u.DeletedOn is null and l.DeletedOn is null
 group by l.lightboxid order by l.lightboxid
 
 select top 500 lbid as LightBoxID, InvitationID,InviterID,GuestID,Email,Subject,SharedOn,
@@ -1172,7 +1172,7 @@ res1=$(date +%s.%N)
 #ge-{org_name}_Talent_Users.csv
 
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
-declare @AccountID int= {AccountID};
+declare @AccountID int= '$acc';
 declare @ActiveUsers as Table (UserID int)
 insert into @ActiveUsers select u.UserID from [dbo].[user] u
 inner join Account a on a.AccountID=u.AccountID
@@ -1204,7 +1204,7 @@ res1=$(date +%s.%N)
 #ge-{org_name}_Watermark_Summary.csv
 
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
-declare @AccountID int ={AccountID};
+declare @AccountID int ='$acc';
 WITH CTE as(
 select 
 ag.AccountGroupID, ag.Name as [AccountGroupName],
@@ -1258,7 +1258,7 @@ res1=$(date +%s.%N)
 #ge-{org_name}_User_JobAssginments.csv
 
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
-declare @AccountID int= {AccountID};
+declare @AccountID int= '$acc';
 declare @ActiveUsers as Table (UserID int)
 insert into @ActiveUsers select u.UserID from [dbo].[user] u
 inner join Account a on a.AccountID=u.AccountID
