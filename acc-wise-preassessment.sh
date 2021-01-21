@@ -20,7 +20,7 @@ Select a.AccountGroupID, a.AccountID, a.AccountName, j.JobID, J.JobName from Job
 inner join Account a on a.AccountID = j.OwnerAccountID
 where a.AccountID = '$acc' and j.DeletedOn is null"  -s , -W -k1 > Output/ge-"$name"_org.csv
 
-sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/ge-ge-"$name"_org.csv > Final_CSV/ge-"$name"_org.csv
+sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/ge-"$name"_org.csv > Final_CSV/ge-"$name"_org.csv
 
 res2=$(date +%s.%N)
 dt=$(echo "$res2 - $res1" | bc)
@@ -65,7 +65,7 @@ select AccountID, UserID from
         where a.AccountID = @AccountID
         and u.Guest = 1
         and u.AccountID is null
-) a;" -s , -W -k1 > Output/ge-ge-"$name"_userid.csv
+) a;" -s , -W -k1 > Output/ge-"$name"_userid.csv
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/ge-"$name"_userid.csv > Final_CSV/ge-"$name"_userid.csv
 
