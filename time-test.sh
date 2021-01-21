@@ -34,7 +34,7 @@ dt3=$(echo "$dt2-3600*$dh" | bc)
 dm=$(echo "$dt3/60" | bc)
 ds=$(echo "$dt3-60*$dm" | bc)
 timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02d \n" $dd $dh $dm $ds)
-timetaken1=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+#timetaken1=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
 
 echo "TimeTaken: $timetaken"
-echo "TimeTaken1: $timetaken"
+#echo "TimeTaken1: $timetaken"
