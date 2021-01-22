@@ -89,12 +89,12 @@ res1=$(date +%s.%N)
 
 #ge-{AccountGroupName}-user-savedsearchID
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
-select ss.OwnerID, ss.SavedSearchID, count(ssi.SavedSearchQueryItemID) as NoOfSavedSearchQueryItem, ss.IsHidden from Account acc
+select acc.AccountID as GEL_AccountID,ss.OwnerID, ss.SavedSearchID, count(ssi.SavedSearchQueryItemID) as NoOfSavedSearchQueryItem, ss.IsHidden from Account acc
 inner join [dbo].[User] u on u.AccountID = acc.AccountID
 inner join SavedSearch ss on ss.OwnerID = u.UserID
 inner join SavedSearchQueryItem ssi on ssi.SavedSearchID = ss.SavedSearchID
 where acc.AccountID = '$acc' and u.DeletedOn is null
-group by ss.SavedSearchID, ss.OwnerID,ss.IsHidden" -s , -W -k1 > Output/ge-"$name"_user_saved_searchid.csv
+group by ss.SavedSearchID, ss.OwnerID,ss.IsHidden,acc.AccountID" -s , -W -k1 > Output/ge-"$name"_user_saved_searchid.csv
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/ge-"$name"_user_saved_searchid.csv > Final_CSV/ge-"$name"_user_saved_searchid.csv
 
@@ -978,11 +978,11 @@ echo "Report-25 ge-"$name"_ApprovalGallery_HashNotes_0.csv-> done TimeTaken: $ti
 
 sleep 1s
 
-echo "Processing ge-"$name"_FolderAssignmentsid.csv file"
+echo "Processing ge-"$name"_project-assignments.csv file"
 
 res1=$(date +%s.%N)
 
-#ge-{org_name}_FolderAssignmentsid.csv
+#ge-{org_name}_project-assignments.csv
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
 declare @AccountID int ='$acc';​
 select 
@@ -997,9 +997,9 @@ inner join [User] u on a.AccountID=u.AccountID
 inner join UserJob uj on u.UserID=uj.UserID
 inner join Job j on uj.JobID=j.JobID
 left join JobFolder jf on uj.JobFolderID=jf.JobFolderID
-where a.DeletedOn is null and u.DeletedOn is null and a.AccountID=@AccountID and j.DeletedOn is null and jf.DeletedOn is null" -s , -W -k1 > Output/ge-"$name"_FolderAssignmentsid.csv
+where a.DeletedOn is null and u.DeletedOn is null and a.AccountID=@AccountID and j.DeletedOn is null and jf.DeletedOn is null" -s , -W -k1 > Output/ge-"$name"_project-assignments.csv
 
-sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/ge-"$name"_FolderAssignmentsid.csv > Final_CSV/ge-"$name"_FolderAssignmentsid.csv
+sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/ge-"$name"_project-assignments.csv > Final_CSV/ge-"$name"_project-assignments.csv
 
 res2=$(date +%s.%N)
 dt=$(echo "$res2 - $res1" | bc)
@@ -1011,15 +1011,15 @@ dm=$(echo "$dt3/60" | bc)
 ds=$(echo "$dt3-60*$dm" | bc)
 timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
 
-echo "Report-26 ge-"$name"_FolderAssignmentsid.csv -> done TimeTaken: $timetaken"
+echo "Report-26 ge-"$name"_project-assignments.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
-echo "Processing ge-"$name"_comments_assetsid.csv file"
+echo "Processing ge-"$name"_comment_assetsid-mappings.csv file"
 
 res1=$(date +%s.%N)
 
-#ge-{org_name}_comment_assetsid.csv
+#ge-{org_name}_comment_assetsid-mappings.csv
 
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
 declare @AccountID int= '$acc' ;
@@ -1109,9 +1109,9 @@ from @temp t
 inner join Asset at on t.AssetID=at.AssetID
 inner join Job j on at.JobID=j.JobID
 inner join Account a on j.OwnerAccountID=a.AccountID
-inner join AccountGroup ag on a.AccountGroupID=ag.AccountGroupID" -s , -W -k1 > Output/ge-"$name"_comments_assetsid.csv
+inner join AccountGroup ag on a.AccountGroupID=ag.AccountGroupID" -s , -W -k1 > Output/ge-"$name"_comment_assetsid-mappings.csv
 
-sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/ge-"$name"_comments_assetsid.csv > Final_CSV/ge-"$name"_comments_assetsid.csv
+sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/ge-"$name"_comment_assetsid-mappings.csv > Final_CSV/ge-"$name"_comment_assetsid-mappings.csv
 
 res2=$(date +%s.%N)
 dt=$(echo "$res2 - $res1" | bc)
