@@ -1116,7 +1116,7 @@ inner join Job j on at.JobID=j.JobID
 inner join Account a on j.OwnerAccountID=a.AccountID
 inner join AccountGroup ag on a.AccountGroupID=ag.AccountGroupID" -s , -W -k1 > Output/ge-"$name"_comment_assetsid-mappings.csv
 
-sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/ge-"$name"_comment_assetsid-mappings.csv > Final_CSV/ge-"$name"_comment_assetsid-mappings.csv
+sed -e 's/-,//g;s/-//g;s///g;/^$/d' Output/ge-"$name"_comment_assetsid-mappings.csv > Final_CSV/ge-"$name"_comment_assetsid-mappings.csv
 
 res2=$(date +%s.%N)
 dt=$(echo "$res2 - $res1" | bc)
