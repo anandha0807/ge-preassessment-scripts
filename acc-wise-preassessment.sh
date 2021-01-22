@@ -601,16 +601,21 @@ res1=$(date +%s.%N)
 
 #ge-{org_name}_WatermarkAssets.csv
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
-declare @AccountID int ='$acc';
-select ag.AccountGroupID,ag.Name as [AccountGroupName], a.AccountID,a.AccountName,count(distinct arr.AssetID) as [AssetCount]  From AccountGroup ag
+declare @AccountID int = '$acc';
+select ag.AccountGroupID,ag.Name as [AccountGroupName], a.AccountID,a.AccountName, AssetCount
+From AccountGroup ag
 inner join Account a on ag.AccountGroupID=a.AccountGroupID
-inner join job j on a.AccountID=j.OwnerAccountID
-inner join JobFolder jf on j.JobID=jf.JobID
-inner join Asset at on j.JobID=at.JobID
-left join AssetRightsRestriction arr on at.AssetID=arr.AssetID and arr.AccessLevelID in(1,3,6)
-where at.DeletetedOn is null and j.DeletedOn is null and jf.DeletedOn is null and a.AccountID=@AccountID 
-group by ag.AccountGroupID,ag.Name,a.AccountID,a.AccountName
-order by ag.AccountGroupID,ag.Name,a.AccountID,a.AccountName;" -s , -W -k1 > Output/ge-"$name"_WatermarkAssets.csv
+Left join (
+			select a.AccountID,a.AccountName,count(distinct arr.AssetID) as [AssetCount]
+			From Account a
+			inner join job j on a.AccountID=j.OwnerAccountID
+			inner join JobFolder jf on j.JobID=jf.JobID
+			inner join Asset at on jf.JobFolderID=at.JobFolderID
+			inner join AssetRightsRestriction arr on at.AssetID=arr.AssetID and arr.AccessLevelID in(1,3,6)
+			where at.DeletetedOn is null and j.DeletedOn is null and jf.DeletedOn is null and a.AccountID=@AccountID
+			group by a.AccountID,a.AccountName
+) b on a.AccountID=b.AccountID
+where a.DeletedOn is null and a.AccountID=@AccountID" -s , -W -k1 > Output/ge-"$name"_WatermarkAssets.csv
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/ge-"$name"_WatermarkAssets.csv > Final_CSV/ge-"$name"_WatermarkAssets.csv
 
