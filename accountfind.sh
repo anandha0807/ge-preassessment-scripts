@@ -10,6 +10,8 @@ mkdir -p -v Output/"$agid"
 
 mkdir -p -v Final_CSV/"$agid"
 
+cat /dev/null > ge-"$name"_accountid.csv
+
 echo "Getting AccountID list for AgID=$agid "
 
 sleep 1s
@@ -27,7 +29,9 @@ ac=$(cat Final_CSV/"$agid"/ge-"$name"_accountid.csv | wc -l)
 
 echo "Total No Of Accounts: $ac"
 
-file= Final_CSV/"$agid"/ge-"$name"_accountid.csv
+cat cat Final_CSV/"$agid"/ge-"$name"_accountid.csv > ge-"$name"_accountid.csv
+
+file=ge-"$name"_accountid.csv
 
 f=1
         function asset()
@@ -49,9 +53,9 @@ echo "**************Generating Reports for AccountID: $acc********************"
 sleep 1s
 
 echo "Processing ge-"$name"_org.csv file"
-#ge-{AccountGroupName}-AccountID 
 
 res11=$(date +%s.%N)
+
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
 
 Select a.AccountGroupID, a.AccountID, a.AccountName, j.JobID, J.JobName from Job j
