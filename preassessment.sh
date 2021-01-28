@@ -56,6 +56,7 @@ function asset()
         #ge-{AccountGroupName}-AccountID 
         
         res11=$(date +%s.%N)
+        res1=$(date +%s.%N)
         sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
         
         Select a.AccountGroupID, a.AccountID, a.AccountName, j.JobID, J.JobName from Job j
