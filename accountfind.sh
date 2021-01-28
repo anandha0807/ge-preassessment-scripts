@@ -27,3 +27,63 @@ ac=$(cat Final_CSV/"$agid"/ge-"$name"_accountid.csv | wc -l)
 
 echo "Total No Of Accounts: $ac"
 
+file= Final_CSV/"$agid"/ge-"$name"_accountid.csv
+
+f=1
+        function asset()
+
+        {   
+        arr=("$@")
+        for acc in "${arr[@]}";
+        do
+
+echo "Creating Account dir $acc"
+
+sleep 1s
+
+mkdir -p -v Output/"$agid"/"$acc"
+mkdir -p -v Final_CSV/"$agid"/"$acc"
+
+echo "**************Generating Reports for AccountID: $acc********************"
+
+sleep 1s
+
+echo "Processing ge-"$name"_org.csv file"
+#ge-{AccountGroupName}-AccountID 
+
+res11=$(date +%s.%N)
+sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
+
+Select a.AccountGroupID, a.AccountID, a.AccountName, j.JobID, J.JobName from Job j
+inner join Account a on a.AccountID = j.OwnerAccountID
+where a.AccountID = '$acc' and j.DeletedOn is null"  -s , -W -k1 > Output/"$agid"/"$acc"/ge-"$name"_org.csv
+
+sed -e 's/-,//g;s/-//g;s///g;/^$/d' Output/"$agid"/"$acc"/ge-"$name"_org.csv > Final_CSV/"$agid"/"$acc"/ge-"$name"_org.csv
+
+res2=$(date +%s.%N)
+dt=$(echo "$res2 - $res1" | bc)
+dd=$(echo "$dt/86400" | bc)
+dt2=$(echo "$dt-86400*$dd" | bc)
+dh=$(echo "$dt2/3600" | bc)
+dt3=$(echo "$dt2-3600*$dh" | bc)
+dm=$(echo "$dt3/60" | bc)
+ds=$(echo "$dt3-60*$dm" | bc)
+timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+
+echo "Report-1 ge-"$name"_org.csv -> done TimeTaken: $timetaken"
+
+sleep 1s
+
+
+
+
+REWRITE="\e[25D\e[1A\e[K"
+            echo -e "${REWRITE}$f done"
+            ((f++))
+
+        done
+        }
+        array=( $(cut -d ',' -f1 $file ) )
+        asset "${array[@]}"
+
+echo "Done for all $f accounts"
