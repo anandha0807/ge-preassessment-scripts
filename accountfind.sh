@@ -54,7 +54,7 @@ sleep 1s
 
 echo "Processing ge-"$name"_org.csv file"
 
-res11=$(date +%s.%N)
+res1=$(date +%s.%N)
 
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
 
@@ -73,13 +73,13 @@ dt3=$(echo "$dt2-3600*$dh" | bc)
 dm=$(echo "$dt3/60" | bc)
 ds=$(echo "$dt3-60*$dm" | bc)
 timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
+sleep 1s
 
 echo "Report-1 ge-"$name"_org.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
-
-
+echo "Completed..."
 
 REWRITE="\e[25D\e[1A\e[K"
             echo -e "${REWRITE}$f done"
