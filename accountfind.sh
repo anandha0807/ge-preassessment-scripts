@@ -90,4 +90,5 @@ REWRITE="\e[25D\e[1A\e[K"
         array=( $(cut -d ',' -f1 $file ) )
         asset "${array[@]}"
 
-echo "Done for all $f accounts"
+totalrun=$($f-1)
+echo "Done for all $totalrun accounts"
