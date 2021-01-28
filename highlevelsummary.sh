@@ -1,5 +1,5 @@
 #!/bin/bash
-echo Enter account groupid:
+echo Enter accountid:
 read acc
 #echo Enter the Accountid for getting Unsupported Files:
 #read accid
@@ -11,9 +11,10 @@ read name
 
 sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
 
+use GE;
 
 --Variable declaration
-declare @AccountID bigint = '$acc';
+declare @AccountID bigint = 3490;
 declare @NoOfLightBoxGroup int, @NoOfJobs int, @NoOfAccounts int, @NoOfSavedSearch int, @NoOfTotalUsers int, @NoOfAssetNotes int,@NoOfMarkUps int,@NoOfTalentUsers int;
 declare @NoOfLightBoxComments bigint, @NoOfLightbox bigint, @NoOfFolders bigint, @NoOfLightBoxinvitation int,@NoOfLightBoxinvitation1 int, @NoOfDerivatives bigint;
 declare @NoOfAssets bigint, @NoOfRatings bigint, @NoOfMetadata bigint, @NoOfAssetHistory bigint,@NoOfMetadatamapped bigint,@NoOfMetadataunmapped bigint;
