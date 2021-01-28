@@ -1,6 +1,6 @@
 #!/bin/bash
 echo Enter accountid:
-read acc
+read accid
 #echo Enter the Accountid for getting Unsupported Files:
 #read accid
 echo Enter the CSV Firstname:
@@ -14,7 +14,7 @@ sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
 use GE;
 
 --Variable declaration
-declare @AccountID bigint = 3490;
+declare @AccountID bigint = '$accid';
 declare @NoOfLightBoxGroup int, @NoOfJobs int, @NoOfAccounts int, @NoOfSavedSearch int, @NoOfTotalUsers int, @NoOfAssetNotes int,@NoOfMarkUps int,@NoOfTalentUsers int;
 declare @NoOfLightBoxComments bigint, @NoOfLightbox bigint, @NoOfFolders bigint, @NoOfLightBoxinvitation int,@NoOfLightBoxinvitation1 int, @NoOfDerivatives bigint;
 declare @NoOfAssets bigint, @NoOfRatings bigint, @NoOfMetadata bigint, @NoOfAssetHistory bigint,@NoOfMetadatamapped bigint,@NoOfMetadataunmapped bigint;
