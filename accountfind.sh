@@ -29,7 +29,7 @@ ac=$(cat Final_CSV/"$agid"/ge-"$name"_accountid.csv | wc -l)
 
 echo "Total No Of Accounts: $ac"
 
-cat cat Final_CSV/"$agid"/ge-"$name"_accountid.csv > ge-"$name"_accountid.csv
+cat Final_CSV/"$agid"/ge-"$name"_accountid.csv > ge-"$name"_accountid.csv
 
 file=ge-"$name"_accountid.csv
 
