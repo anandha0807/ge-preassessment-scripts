@@ -26,7 +26,7 @@ sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
 
 Select a.AccountGroupID, a.AccountID, a.AccountName, j.JobID, J.JobName from Job j
 inner join Account a on a.AccountID = j.OwnerAccountID
-where a.AccountID = ? and j.DeletedOn is null" -s , -W -k1 > Output/ge-"$name"_accountid.csv
+where a.AccountID = '$acc' and j.DeletedOn is null" -s , -W -k1 > Output/ge-"$name"_accountid.csv
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/ge-"$name"_accountid.csv > Final_CSV/ge-"$name"_accountid.csv
 #######################################################
