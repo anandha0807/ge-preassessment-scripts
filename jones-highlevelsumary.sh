@@ -403,5 +403,5 @@ update @output_table set SortOrder=NULL where HighLevelSummary='Ratings_total_re
 update @output_table set SortOrder=NULL where HighLevelSummary='Talent_Users_Total_records'
 select HighLevelSummary, CASE Globaledit_Legacy WHEN -9999 THEN 0 ELSE Globaledit_Legacy END AS Globaledit_Legacy From @output_table where SortOrder is not null order by SortOrder" -s , -W -k1 > Output/"$name"_HighLevel_Summary.csv
 
-sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/"$name"_HighLevel_Summary.csv > Final_CSV/"$name"_HighLevel_Summary.csv
-grep -v "^--" Final_CSV/"$name"_HighLevel_Summary.csv > Final_CSV/"$name"_HighLevel_Summary.csv
+grep -v "^--" Output/"$name"_HighLevel_Summary.csv > Final_CSV/"$name"_HighLevel_Summary.csv
+
