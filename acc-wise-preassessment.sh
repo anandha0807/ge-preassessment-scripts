@@ -21,7 +21,15 @@ inner join Account a on a.AccountID = j.OwnerAccountID
 where a.AccountID = '$acc' and j.DeletedOn is null"  -s , -W -k1 > Output/ge-"$name"_org.csv
 
 sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/ge-"$name"_org.csv > Final_CSV/ge-"$name"_org.csv
+#########################################
+sqlcmd -S PRD-DB-02.ics.com -U sa -P 'SQL h@$ N0 =' -d ge -Q "set nocount on;
 
+Select a.AccountGroupID, a.AccountID, a.AccountName, j.JobID, J.JobName from Job j
+inner join Account a on a.AccountID = j.OwnerAccountID
+where a.AccountID = ? and j.DeletedOn is null" -s , -W -k1 > Output/ge-"$name"_accountid.csv
+
+sed -e 's/-,//g;s/-//g;s/,,//g;/^$/d' Output/ge-"$name"_accountid.csv > Final_CSV/ge-"$name"_accountid.csv
+#######################################################
 res2=$(date +%s.%N)
 dt=$(echo "$res2 - $res1" | bc)
 dd=$(echo "$dt/86400" | bc)
@@ -33,6 +41,7 @@ ds=$(echo "$dt3-60*$dm" | bc)
 timetaken=$(LC_NUMERIC=C printf "%d:%02d:%02d:%02.4f\n" $dd $dh $dm $ds)
 
 echo "Report-1 ge-"$name"_org.csv -> done TimeTaken: $timetaken"
+echo "Report-1 ge-"$name"_accountid.csv -> done TimeTaken: $timetaken"
 
 sleep 1s
 
